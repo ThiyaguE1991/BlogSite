@@ -1,0 +1,189 @@
+﻿
+@model BloggerPortal.Models.TBL_Blog
+@{
+    int i = 0;
+    string mediaURL = BloggerPortal.Services.UploadServices.GetMediaFileURL(Model.MediaFileId);
+}
+
+
+<input type="hidden" id="hdn_BlogId" />
+
+<div class="col-12 col-sm-12">
+
+    <div class="card-body">
+        @using (Ajax.BeginForm("SaveBlog", "Blog", new AjaxOptions
+        {
+            HttpMethod = "POST",
+            OnSuccess = "OnSuccess",
+            OnFailure = "OnFailure"
+        }, new { @id = "form_blog" }))
+        {
+            @Html.HiddenFor(m => m.BlogId)
+            @Html.HiddenFor(m => m.MediaFileId)
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <!-- text input -->
+                    <div class="form-group">
+                        <label>Title</label>
+                        @Html.TextBoxFor(m => m.Title, new
+                   {
+                       @class = "form-control required-text",
+                       @placeholder = "Enter Title",
+                       @maxlength = 100,
+                       @autocomplete = false,
+                       @tabindex = 1
+                   })
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <label>Media Type</label>
+                        @Html.DropDownListFor(model => model.MediaType,
+new SelectList(ViewBag.MediaTypeList, "Value", "Text"),
+new { @class = "form-control select2bs4" })
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="form-group">
+                        <label>Description</label>
+                        @Html.TextAreaFor(m => m.Description,
+                        new
+                        {
+                            @class = "form-control required-text",
+                            @placeholder = "Enter Description",
+                            @maxlength = 2000,
+                            @autocomplete = false,
+                            @tabindex = 2,
+
+                        })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <input type="file" id="FileUpload1" data-fileId="@Model.MediaFileId" />
+                    </div>
+                </div>
+
+                <div class="col-sm-6">
+                    <!-- checkbox -->
+                    <div class="form-group">
+                        <div class="form-check">
+                            @Html.CheckBoxFor(m => m.IsVisible, new { @class = "form-check-input", @tabindex = 5 })
+                            <label class="form-check-label" for="ShowOnHomePage">Visible</label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                @{
+
+                    if (Model.BlogId > 0)
+                    {
+
+                        <div class="col-sm-12">
+                            @{
+                                if (Model.MediaType == 1)
+                                {
+                                    <div class="img-bg" style="background-image: url(@mediaURL);"></div>
+                                }
+                                else
+                                {
+                                    <div style="border: 9px outset #ddd;width:100%;">
+                                        <video controls>
+                                            <source src="@mediaURL" type="video/mp4">
+                                            <source src="@mediaURL" type="video/ogg">
+                                        </video>
+                                    </div>
+                                }
+                            }
+                        </div>
+
+                    }
+                }
+            </div>
+
+            <div class="row" style="margin-top:10px;">
+                <div class="col-sm-6">
+                    <button type="button" class="btn btn-warning" tabindex="7" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" tabindex="6" onclick="fileUploadEvent(event,'form_blog')">Save</button>
+
+                </div>
+            </div>
+        }
+
+    </div>
+
+</div>
+
+<script src="~/Scripts/file-upload.js"></script>
+
+<script type="text/javascript">
+
+    var allowedFileFormats = '.jpeg,.jpg,.png,.gif,.mp4,.mpeg,.avi';
+
+    $(document).ready(function () {
+
+      //  if ($('#MediaType').val() == '2') {
+           // allowedFileFormats = '.jpeg,.jpg,.png,.gif,.mp4,.mpeg,.avi';
+       // }
+
+       // fileUpload('div#dropzone-example', '@ViewBag.BlogId', 'blog', allowedFileFormats);
+
+        ValidationColor_Change();
+        $('.number').keypress(validateNumber);
+
+
+        @*$('#MediaType').change(function () {
+
+            if ($('#MediaType').val() == '2') {
+                allowedFileFormats = '.mp4,.mpeg,.avi';
+            }
+            else {
+                allowedFileFormats = '.jpeg,.jpg,.png,.gif';
+            }
+             fileUpload('div#dropzone-example', '@ViewBag.BlogId', 'blog', allowedFileFormats);
+        });*@
+
+    });
+
+    function OnSuccess(e) {
+        if ('-100' == e) {
+            toastr.warning('warning', 'Title already exists...');
+            $('#Title').focus();
+        }
+        else {
+            toastr.success('success', 'Title saved successfully...');
+            $('#hdn_BlogId').val(e);
+            $('#BlogId').val(e);
+            LoadGridTable();
+            $('#modal-dialog').modal('hide');
+        }
+    }
+
+    function fileUploadEvent(event, formname) {
+
+        let isValid = checkValidation(event, formname);
+        if (isValid) {
+            let response = fileUpload();
+            if (response == 'nofiles' && $('#MediaFileId').val() == '0' ) {
+                isValid = false;
+                toastr.success('warning', 'Please upload the blog Image/Video');
+            }
+        }
+        return isValid;
+    }
+
+
+</script>
+

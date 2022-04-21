@@ -1,0 +1,314 @@
+﻿@model BloggerPortal.Models.ViewModels.LoginVM
+@using BloggerPortal.Models;
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blogger Portal | Log in </title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/plugins/fontawesome-free/css/all.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/Content/AdminLTE/dist/css/adminlte.min.css">
+
+    <link href="~/Content/AdminLTE/plugins/toastr/toastr.min.css" rel="stylesheet" />
+
+    <link href="~/Content/AdminLTE/plugins/toastr/toastr.min.css" rel="stylesheet" />
+
+</head>
+
+
+<body class="hold-transition login-page">
+    <div class="login-box">
+        <!-- /.login-logo -->
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <a href="#" class="h1"><b>Blogger Portal</b> Login</a>
+            </div>
+            <div class="card-body">
+
+
+                @using (Ajax.BeginForm("Login", "Login", new AjaxOptions
+                {
+                    HttpMethod = "POST",
+                    OnSuccess = "OnSuccess",
+                    OnFailure = "OnFailure"
+                }, new { @id = "form_login" }))
+                {
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control required-text"
+                               name="UserName" id="UserName" placeholder="User Name" tabindex="1">
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control required-text"
+                               name="Password" id="Password" placeholder="Password" tabindex="2">
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="icheck-primary">
+                                <input type="checkbox" id="remember" tabindex="3">
+                                <label for="remember">
+                                    Remember Me
+                                </label>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary  btn-block" tabindex="4"
+                                    onclick="checkValidation(event,'form_login')">
+                                Sign In
+                            </button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+
+                }
+
+                <a href="#" onclick="openUserPopup();">Create User Account</a>
+                <br />
+                <a href="#" onclick="openForgorPopup();">Forgor Password</a>
+
+            </div>
+            <!-- /.card-body -->
+        </div>
+        <!-- /.card -->
+    </div>
+    <!-- /.login-box -->
+
+
+
+    <div id="showmodal" class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content" id="add-modal-content">
+                @*@{
+                        Html.RenderPartial("_CreateUserAccount", new TBL_User());
+                    }*@
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- jQuery -->
+    <script src="~/Content/AdminLTE/plugins/jquery/jquery.min.js"></script>
+    <!-- jQuery unobtrusive -->
+    <script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/Content/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <script src="~/Content/AdminLTE/plugins/toastr/toastr.min.js"></script>
+
+    <!-- AdminLTE App -->
+    <script src="~/Content/AdminLTE/dist/js/adminlte.min.js"></script>
+    <script src="~/Content/AdminLTE/plugins/toastr/toastr.min.js"></script>
+
+    <script src="~/Scripts/custom-scripts.js"></script>
+
+    <style>
+        .border-red {
+            border-color: red !important;
+        }
+    </style>
+
+
+    <script>
+
+
+        $(function () {
+
+            ValidationColor_Change();
+            $('.number').keypress(validateNumber);
+
+        });
+
+        function openUserPopup() {
+            let pageName = "Login";
+            let modalName = $('#modalName').val();
+            $('#add-modal-content').load('/' + pageName + '/CreateUser');
+            $('#showmodal').find('.modal-dialog').addClass(modalName);
+            $('#showmodal').modal('show');
+            ValidationColor_Change();
+        }
+
+        function ValidationColor_Change() {
+            $("input").focusout(function () {
+                if ($(this).val() != '') {
+                    $(this).removeClass('border-red');
+                }
+
+            });
+            $("input").keypress(function () {
+                if ($(this).val() != '') {
+                    $(this).removeClass('border-red');
+                }
+            });
+        }
+
+
+        function checkValidation(event, formname) {
+            let isValid = true;
+            let $formelement = $('#' + formname);
+            elemetnNAme = $formelement;
+            $formelement.find('.required-text').each(function () {
+                if ($(this).val() != null && $(this).val() != undefined && $(this).val().trim() == '') {
+                    $(this).addClass('border-red');
+                    //    alert($(this).attr('id'));
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                // alert('asdadasd')
+                event.preventDefault();
+            }
+
+            return isValid;
+        }
+
+        function checkUserValidation(event, formname) {
+
+            let isValid = true;
+            //var regex = /^([a-zA-Z0-9_.+-])+\(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+            let $formelement = $('#' + formname);
+
+            elemetnNAme = $formelement;
+
+            $formelement.find('.required-text').each(function () {
+                if ($(this).val() != null && $(this).val() != undefined && $(this).val().trim() == '') {
+                    $(this).addClass('border-red');
+                    //    alert($(this).attr('id'));
+                    isValid = false;
+                }
+            });
+
+            $formelement.find('.required-drop').each(function () {
+                if ($(this).val() != null && $(this).val() != undefined && $(this).val().trim() == '') {
+                    $(this).addClass('border-red');
+                    isValid = false;
+                }
+            });
+
+            //if (!regex.test($('#EmailId').val())) {
+            //isValid = false;
+            //}
+            if (($('#Passwordval').val()) != ($('#ConfirmPassword').val())) {
+                $('#Passwordval').addClass('border-red');
+                $('#ConfirmPassword').addClass('border-red');
+                isValid = false;
+                toastr.warning('warning', 'Password and Confirm Password does not match...');
+            }
+            if (!isValid) {
+                // alert('asdadasd')
+                event.preventDefault();
+            }
+            return isValid;
+        }
+
+
+        function OnFailure(e) {           
+            console.log(e);
+        }
+
+        $(function () {
+            ValidationColor_Change();
+        });
+
+
+        function OnSuccess(e) {
+            if ('-100' == e) {
+                toastr.warning('warning', 'Login failed... Username or Password is incorrect...');
+                $('#UserName').val('');
+                $('#Password').val('');
+                $('#UserName').focus();
+            }
+            else if (e==1) {
+                toastr.success('success', 'Logged in successfully...');
+                  location.href = '@Url.Action("Index","Dashboard")';
+            }
+            else{
+                    toastr.success('success', 'Logged in successfully...');
+                  location.href = '@Url.Action("Index","BlogView")';
+            }
+        }
+
+
+        function ValidationColor_Change() {
+            $("input").focusout(function () {
+                if ($(this).val() != '') {
+                    $(this).removeClass('border-red');
+                }
+            });
+            $("input").keypress(function () {
+                if ($(this).val() != '') {
+                    $(this).removeClass('border-red');
+                }
+            });
+
+            $("textarea").keypress(function () {
+                if ($(this).val() != '') {
+                    $(this).removeClass('border-red');
+                }
+            });
+
+            $("select").change(function () {
+                if ($(this).val() != '' && $(this).val() != '0') {
+                    $(this).removeClass('border-red');
+                }
+            });
+        }
+
+
+        function checkValidation(event, formname) {
+
+            let isValid = true;
+
+            let $formelement = $('#' + formname);
+
+            elemetnNAme = $formelement;
+
+            $formelement.find('.required-text').each(function () {
+                if ($(this).val() != null && $(this).val() != undefined && $(this).val().trim() == '') {
+                    $(this).addClass('border-red');
+                    //    alert($(this).attr('id'));
+                    isValid = false;
+                }
+            });
+
+            if (!isValid) {
+                // alert('asdadasd')
+                event.preventDefault();
+            }
+
+            return isValid;
+        }
+
+        function validateNumber(event) {
+            var key = window.event ? event.keyCode : event.which;
+            if (event.keyCode === 8 || event.keyCode === 46) {
+                return true;
+            } else if (key < 48 || key > 57) {
+                return false;
+            } else {
+                return true;
+            }
+        };
+
+        function openForgorPopup() {
+            let pageName = "Login";
+            let modalName = $('#modalName').val();
+            $('#add-modal-content').load('/' + pageName + '/ForgotPassword');
+            $('#showmodal').find('.modal-dialog').addClass(modalName);
+            $('#showmodal').modal('show');
+            ValidationColor_Change();
+        }
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,138 @@
+﻿@model BloggerPortal.Models.TBL_User
+
+@{
+    Layout = null;
+}
+
+<div class="card card-primary">
+    <div class="card-header">
+        <h3 class="card-title">Create New User</h3>
+    </div>
+    @using (Ajax.BeginForm("SaveUser", "Login", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnSuccess = "OnUserSuccess",
+        OnFailure = "OnUserFailure"
+    }, new { @id = "User-form" }))
+    {
+        <div class="card-body">
+            <div class="row">
+
+                <div class="form-group col-md-6">
+                    <label for="UserName">Full Name<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control required-text" name="UserName"
+                           placeholder="Enter UserName">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label for="RoleId">Role Type</label>
+                    @Html.DropDownListFor(model => model.RoleId,
+                   new SelectList(ViewBag.RoleList, "Value", "Text"),
+                   new { @class = "form-control required-drop" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="Passwordval">Password<span style="color:red;">*</span></label>
+                    <input type="password" class="form-control required-text" id="Passwordval" name="Password" placeholder="Password">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="ConfirmPassword">Confirm Password<span style="color:red;">*</span></label>
+                    <input type="password" class="form-control required-text" id="ConfirmPassword" name="ConfirmPassword" placeholder="Password">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="EmailId">Email ID<span style="color:red;">*</span></label>
+                    <input type="email" class="form-control required-text" id="EmailId" name="EmailId" placeholder="Enter the email">
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-md-6">
+                    <label for="MobileNo">Mobile No<span style="color:red;">*</span></label>
+                    <input type="text" class="form-control numeric required-text Number" name="MobileNo"
+                           placeholder="Enter the Mobile No" maxlength="12">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="City">City</label>
+                    <input type="text" class="form-control" name="City"
+                           placeholder="Enter the City">
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="form-group col-md-12">
+                    <label for="Address">Address</label>
+                    <textarea type="text" class="form-control" name="Address"
+                              placeholder="Enter the Address">
+                        </textarea>
+                </div>
+
+            </div>
+
+            <div class="card-footer">
+                <button type="submit" class="btn btn-primary" onclick="checkUserValidation(event,'User-form')">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    }
+</div>
+
+<style>
+    .border-red {
+        border-color: red !important;
+    }
+</style>
+
+<script src="~/Scripts/jquery.unobtrusive-ajax.min.js"></script>
+<script>
+
+
+    $(function () {
+        $('#EmailId').change(function () {
+           
+            if ($(this).val() != '') {
+                $(this).removeClass('border-red');
+                if (!ValidateEmail($(this).val())) {
+                    $(this).val('');
+                    $(this).addClass('border-red');
+                    toastr.warning('warning', 'Please enter the correct email...');
+                }
+            }
+        });
+        ValidationColor_Change();
+    });
+
+
+
+    $('.Number').keypress(function (event) {
+        var keycode = event.which;
+        if (!(event.shiftKey == false && (keycode == 46 || keycode == 8 || keycode == 37 || keycode == 39 || (keycode >= 48 && keycode <= 57)))) {
+            event.preventDefault();
+        }
+    });
+
+
+    function OnUserFailure(e) {
+     
+        console.log(e);
+    }
+
+    function OnUserSuccess(e) {
+        if ('-200' == e) {
+            toastr.warning('warning', 'User Name or Email Id already exists...');           
+        }
+        else if('-100' == e) {
+            toastr.warning('warning', 'User details not saved...');           
+        }
+        else {
+            toastr.success('success', 'New User Created in Successfully...');
+            $('#showmodal').modal('hide');
+        }
+    }
+
+
+</script>

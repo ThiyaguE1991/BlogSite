@@ -1,0 +1,149 @@
+﻿@model BloggerPortal.Models.TBL_Comment
+
+@{
+    Layout = null;
+}
+
+
+<div class="card">
+    <div class="card-body" style="display: block;">
+        <div class="row">
+            <div class="col-12 col-md-12 col-lg-8 order-2 order-md-1">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="small-box bg-success">
+                            <div class="inner">
+                                <h3>53<sup style="font-size: 20px">%</sup></h3>
+                                <p>Bounce Rate</p>
+                            </div>
+                            <div class="icon">
+                                <i class="ion ion-stats-bars"></i>
+                            </div>
+                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <h4>Recent Activity</h4>
+                        <div class="post">
+                            <div class="user-block">
+                                <img class="img-circle img-bordered-sm" src="../../dist/img/user1-128x128.jpg" alt="user image">
+                                <span class="username">
+                                    <a href="#">Jonathan Burke Jr.</a>
+                                </span>
+                                <span class="description">Shared publicly - 7:45 PM today</span>
+                            </div>
+                            <p>
+                                Lorem ipsum represents a long-held tradition for designers,
+                                typographers and the like. Some people hate it and argue for
+                                its demise, but others ignore.
+                            </p>
+                            <p>
+                                <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 1 v2</a>
+                            </p>
+                        </div>
+                        <div class="post clearfix">
+                            <div class="user-block">
+                                <img class="img-circle img-bordered-sm" src="../../dist/img/user7-128x128.jpg" alt="User Image">
+                                <span class="username">
+                                    <a href="#">Sarah Ross</a>
+                                </span>
+                                <span class="description">Sent you a message - 3 days ago</span>
+                            </div>
+                            <p>
+                                Lorem ipsum represents a long-held tradition for designers,
+                                typographers and the like. Some people hate it and argue for
+                                its demise, but others ignore.
+                            </p>
+                            <p>
+                                <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 2</a>
+                            </p>
+                        </div>
+                        <div class="post">
+                            <div class="user-block">
+                                <img class="img-circle img-bordered-sm" src="../../dist/img/user1-128x128.jpg" alt="user image">
+                                <span class="username">
+                                    <a href="#">Jonathan Burke Jr.</a>
+                                </span>
+                                <span class="description">Shared publicly - 5 days ago</span>
+                            </div>
+                            <p>
+                                Lorem ipsum represents a long-held tradition for designers,
+                                typographers and the like. Some people hate it and argue for
+                                its demise, but others ignore.
+                            </p>
+                            <p>
+                                <a href="#" class="link-black text-sm"><i class="fas fa-link mr-1"></i> Demo File 1 v1</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <div class="input-group">
+                        <input type="text" name="message" placeholder="Type Message ..." class="form-control">
+                        <span class="input-group-append">
+                            <button type="button" class="btn btn-primary">Send</button>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<style>
+    .border-red {
+        border-color: red !important;
+    }
+</style>
+
+
+<script>
+
+
+    function checkCommetnsValidation(event, formname) {
+        let isValid = true;
+        let $formelement = $('#' + formname);
+        elemetnNAme = $formelement;
+        $formelement.find('.required-text').each(function () {
+            if ($(this).val() != null && $(this).val() != undefined && $(this).val().trim() == '') {
+                $(this).addClass('border-red');
+                //    alert($(this).attr('id'));
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            // alert('asdadasd')
+            event.preventDefault();
+        }
+
+        return isValid;
+    }
+
+
+    function OnComment0Failure(e) {
+        alert('failure')
+        console.log(e);
+    }
+
+    function OnCommentSuccess(e) {
+
+            if ('-100' == e) {
+                toastr.warning('warning', 'Login failed... Username or Password is incorrect...');
+                $('#UserName').val('');
+                $('#Password').val('');
+                $('#UserName').focus();
+            }
+            else {
+                toastr.success('success', 'New User Created in Successfully...');
+                location.href = '@Url.Action("Index","Dashboard")';
+            }
+        }
+
+
+</script>
+

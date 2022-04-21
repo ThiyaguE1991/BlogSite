@@ -1,0 +1,173 @@
+﻿@model List<BloggerPortal.Models.ViewModels.BlogViewListVM>
+@using BloggerPortal.Services;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutFront.cshtml";
+}
+
+<style>
+    .img-bg {
+        width: auto;
+        height: 100%;
+        min-height: 370px;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        border-radius: 10px;
+    }
+</style>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1>Blog Posts</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Blog Posts</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="content">
+    <div class="card">
+        <div class="card-body">
+            <div class="row">
+
+                <div class="col-12 col-md-12 col-lg-12 order-2 order-md-1">
+                    <div class="row">
+                        <div class="col-12">
+
+                            @*<h4 class="blog-Title">Posts</h4>*@
+
+                            @foreach (var item in Model)
+                            {
+                                <div class="post">
+
+                                    <div class="user-block">
+                                        <img class="img-circle img-bordered-sm" src="~/Content/AdminLTE/dist/img/avatar5.png" alt="user image">
+                                        <span class="username">
+                                            <a href="#">@item.BloggerName</a>
+                                        </span>
+                                        <span class="description">Shared publicly on - @item.publishDateTime</span>
+                                    </div>
+
+                                    <p>
+                                        @item.Title
+                                    </p>
+
+                                    <div class="row mb-3">
+                                        <div class="col-sm-8">
+                                            @if (item.MediaType == 1)
+                                            {
+                                                <div class="img-bg" style="background-image: url(@item.MediaURL);"></div>
+                                                @*<img class="img-fluid" src="@item.MediaURL" alt="Photo">*@
+                                            }
+                                            else
+                                            {
+                                                <div style="border: 9px outset #ddd;width:100%;">
+                                                    <video controls>
+                                                        <source src="@item.MediaURL" type="video/mp4">
+                                                        <source src="@item.MediaURL" type="video/ogg">
+                                                    </video>
+                                                </div>
+                                            }
+                                        </div>
+                                        <div class="col-sm-4">@item.Description</div>
+                                    </div>
+
+                                    <p>
+                                        <span class="float-right">
+                                            <p class="link-black text-sm" onclick="OpenCommentsForBlog('@item.BlogId');">
+                                                <i class="far fa-comments mr-1"></i> View Comments  (@item.TotalComments)
+                                            </p>
+                                        </span>
+                                    </p>
+
+                                    <div class="col-sm-8">
+                                        @if (SessionService.CheckLoggedInUserID())
+                                        {
+                                            <form class="form-horizontal comment-section">
+                                                <div class="input-group input-group-sm mb-0">
+                                                    <input class="form-control form-control-sm txtComment" placeholder="Enter the Comments">
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-danger" onclick="SaveComments('@item.BlogId',this);">
+                                                            Save Comment
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form class="form-horizontal comment-section">
+                                                <div class="input-group input-group-sm mb-0">
+                                                    <input class="form-control form-control-sm txtComment" placeholder="Enter the Comments" disabled title="Please login to comment">
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-success" title="Please login to comment" style="cursor:not-allowed;opacity:60">
+                                                            Save Comment
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+
+                            }
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<div id="showmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="add-modal-content">
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<script>
+
+    function SaveComments(blogId,e) {
+        let comment = $(e).parents('.comment-section').find('.txtComment').val();
+        if (comment != '') {
+            $.ajax({
+                type: "POST",
+                cache: !0,
+                url: "@Url.Action("SaveComments","BlogView")",
+                data: { "blogId": blogId, "comments": comment },
+                success: function (response) {
+                   // alert(response);
+                    if (response != null && response != undefined && response != '0') {
+                        toastr.success('success', 'Comment saved successfully...');
+                    }
+                },
+                failure: function (response) {
+                   // alert(response.responseText);
+                },
+                error: function (response) {
+                   // alert(response.responseText);
+                }
+            });
+        }
+    }
+
+    function OpenCommentsForBlog(blogId) {
+        $('#add-modal-content').html('');
+        $('#add-modal-content').load('/BlogView/LoadComments?blogId='+blogId);
+        $('#showmodal').find('.modal-dialog').addClass('comments');
+        $('#showmodal').modal('show');
+    }
+
+</script>

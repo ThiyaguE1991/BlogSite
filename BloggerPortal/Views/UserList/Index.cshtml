@@ -1,0 +1,141 @@
+﻿
+@{
+    ViewBag.Title = "User - List";
+}
+
+@Html.Partial("~/Views/Shared/PartialViews/_Breadcrumbs.cshtml", new Tuple<string, string, string>("User", "User", "List"))
+
+@Html.Partial("~/Views/Shared/PartialViews/_GridTable.cshtml", new Tuple<string, string, bool>("User", "modal-lg", true))
+
+
+@section scripts{
+
+    <script src="~/Scripts/load-datatable.js"></script>
+
+    <script>
+
+            $(function () {
+                LoadGridTable();
+            });
+
+            function LoadGridTable() {
+
+                var pageSize = parseInt('@ViewBag.PageSize');
+                var gridStartsAt = 0;
+                var pageRowNumber = 1;
+
+                let columnsList = [
+                    {
+                        "data": "UserId",
+                        "visible": false,
+                    },
+                    {
+                        "data": "CreatedOn",
+                        "visible": false,
+                    },
+                    {
+                        "data": "RowNumber",
+                        "orderable": false,
+                        "title": '#',
+                        "width": 5 + '%',
+                        "className": "text-center vertical-middle",
+                    },
+                    {
+                        "data": "UserName",
+                        "orderable": true,
+                        "title": 'User Name',
+                        "width": 25 + '%',
+
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "EmailId",
+                        "orderable": true,
+                        "title": 'Email Id',
+                        "width": 25 + '%',
+
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "MobileNo",
+                        "orderable": true,
+                        "title": 'Mobile',
+                        "width": 25 + '%',
+
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "City",
+                        "orderable": true,
+                        "title": 'City',
+                        "width": 25 + '%',
+
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    }
+                ];
+                FillDataTable(pageSize, gridStartsAt, columnsList, 'TblList', 'Admin_GetUserList', 'user');
+            }
+
+        function FillDataTable(pageSize, gridStartsAt, columnsList, tableName,
+            procedureName, pageName) {
+            $.blockUI({ message: '<div class="contentarea"><img src="../images/loading_Sts.gif" /><br></div>' });
+            $('.table-data-hold').html(' <table width="100%" cellpadding="0" cellspacing="0" border="0" id="' + tableName + '"\
+                   class= "table cell-border table-striped table-bordered dt-responsive nowrap" >\
+            </table >');
+
+            columnsList.push({
+                "data": null,
+                "orderable": false,
+                "title": 'Actions',
+                "className": "iconcolumn",
+                "width": '10px',
+                "render": function (data, type, row, meta) {
+                    return getDeleteString(data);
+                }
+            });
+
+            var table = $('#' + tableName).DataTable({
+                'destroy': true,
+                "processing": false,
+                "serverSide": true,
+                "bFilter": false,
+                "bLengthChange": false,
+                "responsive": true,
+                /* "displayStart": 11,*/
+                "paging": true,
+                "pageLength": pageSize,
+                "order": [[1, "asc"]],
+                "bInfo": false,
+                "ajax": {
+                    url: "/UserList/GetTableList",
+                    type: 'POST',
+                    "data": function (d) {
+                        d.ProcedureName = procedureName;
+                        d.pageName = pageName;
+                    },
+                    complete: function (data) {
+                        $.unblockUI();
+                        console.log('Pagination Web view server side completed...' + new Date());
+                    },
+                    error: function (e) {
+                        $.unblockUI();
+                        console.log('Pagination  Web view  server side Error...' + new Date());
+                        console.log(e);
+                    }
+                },
+                "columns": columnsList
+            });
+        }
+
+        </script>
+
+}
+

@@ -1,0 +1,36 @@
+﻿
+@model Tuple<string,string,bool>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+
+                <input type="hidden" id="pageName" value="@Model.Item1" /> 
+                <input type="hidden" id="modalName" value="@Model.Item2" />
+
+                <div class="card">
+                    @if (@Model.Item3)
+                    {
+                    <div class="btn-add-hold">
+                        <span class="" id="btn_Add"><i class="fa fa-plus-square fa-5"></i></span>
+                    </div>
+                    }
+                    
+                    <!--<div class="card-header">-->
+                    @*<h3 class="card-title">Page Description if needed </h3>*@
+                    <!--</div>-->
+                    <!-- /.card-header -->
+                    <div class="card-body table-data-hold">
+
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+            <!-- /.col -->
+        </div>
+        <!-- /.row -->
+    </div>
+    <!-- /.container-fluid -->
+</section>

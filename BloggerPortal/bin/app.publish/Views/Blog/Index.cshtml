@@ -1,0 +1,140 @@
+﻿
+@{
+    ViewBag.Title = "Comment - List";
+}
+
+@Html.Partial("~/Views/Shared/PartialViews/_Breadcrumbs.cshtml", new Tuple<string, string, string>("Blog", "Blog", "List"))
+
+@Html.Partial("~/Views/Shared/PartialViews/_GridTable.cshtml", new Tuple<string, string, bool>("Blog", "modal-lg", true))
+
+
+@section scripts{
+
+    <script src="~/Scripts/load-datatable.js"></script>
+
+    <script>
+
+            $(function () {
+                LoadGridTable();
+            });
+
+            function LoadGridTable() {
+
+                var pageSize = parseInt('@ViewBag.PageSize');
+                var gridStartsAt = 0;
+                var pageRowNumber = 1;
+
+                let columnsList = [
+                    {
+                        "data": "BlogId",
+                        "visible": false,
+                    },
+                    {
+                        "data": "ModifiedOn",
+                        "visible": false,
+                    },
+                    {
+                        "data": "RowNumber",
+                        "orderable": false,
+                        "title": '#',
+                        "width": 5 + '%',
+                        "className": "text-center vertical-middle",
+                    },
+                    {
+                        "data": "Title",
+                        "orderable": true,
+                        "title": 'Title',
+                        "width": 25 + '%',
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "MediaType",
+                        "orderable": true,
+                        "title": 'Media Type',
+                        "width": 15 + '%',
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) {
+
+                            if (data == 1) {
+                                return 'Image';
+                            }
+                            return 'Video';
+                        }
+                    },
+                    {
+                        "data": "Description",
+                        "orderable": true,
+                        "title": 'Description',
+                        "width": 40 + '%',  
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) {
+                           if (data != null && data != '' && data.length > 75) {                               
+                               return '<span title="' + data+'">' + data.substring(0, 75) + '...</span>';
+                            }
+                            return data;
+                        }
+                    }
+                ];
+
+                FillDataTable(pageSize, gridStartsAt, columnsList, 'TblList', 'Admin_GetBlogList', 'blog');
+            }
+
+
+        function FillDataTable(pageSize, gridStartsAt, columnsList, tableName,
+            procedureName, pageName) {
+            $.blockUI({ message: '<div class="contentarea"><img src="../images/loading_Sts.gif" /><br></div>' });
+            $('.table-data-hold').html(' <table width="100%" cellpadding="0" cellspacing="0" border="0" id="' + tableName + '"\
+                   class= "table cell-border table-striped table-bordered dt-responsive nowrap" >\
+            </table >');
+
+            columnsList.push({
+                "data": null,
+                "orderable": false,
+                "title": 'Actions',
+                "className": "iconcolumn",
+                "width": '10px',
+                "render": function (data, type, row, meta) {
+                    return getDeleteString(data) + ' ' + getEditString(data) + ' ' + getCommentLinkString(data);
+                }
+            });
+
+            var table = $('#' + tableName).DataTable({
+                'destroy': true,
+                "processing": false,
+                "serverSide": true,
+                "bFilter": false,
+                "bLengthChange": false,
+                "responsive": true,
+                /* "displayStart": 11,*/
+                "paging": true,
+                "pageLength": pageSize,
+                "order": [[1, "asc"]],
+                "bInfo": false,
+                "ajax": {
+                    url: "/Blog/GetTableList",
+                    type: 'POST',
+                    "data": function (d) {
+                        d.ProcedureName = procedureName;
+                        d.pageName = pageName;
+                    },
+                    complete: function (data) {
+                        $.unblockUI();
+                        console.log('Pagination Web view server side completed...' + new Date());
+                    },
+                    error: function (e) {
+                        $.unblockUI();
+                        console.log('Pagination  Web view server side Error...' + new Date());
+                        console.log(e);
+                    }
+                },
+                "columns": columnsList                
+            });
+        }
+
+    </script>
+}
+

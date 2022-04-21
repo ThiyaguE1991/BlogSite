@@ -1,0 +1,219 @@
+﻿@model Int32
+@{
+    ViewBag.Title = "Comment - List";
+}
+
+@Html.Partial("~/Views/Shared/PartialViews/_Breadcrumbs.cshtml", new Tuple<string, string, string>("Comment", "Comment", "List"))
+
+@Html.Partial("~/Views/Shared/PartialViews/_GridTable.cshtml", new Tuple<string, string, bool>("Comment", "modal-lg", true))
+
+<div id="showmodal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content" id="add-modal-content">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Comment Reply</h3>
+                </div>
+
+                <input type="hidden" id="hdnCommentId" />
+
+                <div class="card card-info">
+                    <div class="form-horizontal">
+                        <div id="email-container" class="card-body">
+                            <div class="form-group row">
+                                <label for="txtReplyComment" class="col-form-label">Reply Comment</label>
+                                <div class="col-sm-12">
+                                    <textarea class="form-control required-text" id="txtReplyComment" name="Comment"
+                                           placeholder="Enter Reply Comment"></textarea>
+                                </div>
+                            </div>
+
+                            <div class="card-footer">
+                                <button type="button" class="btn btn-primary" onclick="SaveReplyComment();">Reply</button>
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+@section scripts{
+
+    <script src="~/Scripts/load-datatable.js"></script>
+
+    <script>
+
+            $(function () {
+                LoadGridTable();
+
+                $('#hdnCommentId').val('@Model');
+            });
+
+            function LoadGridTable() {
+
+                var pageSize = parseInt('@ViewBag.PageSize');
+                var gridStartsAt = 0;
+                var pageRowNumber = 1;
+
+                let columnsList = [
+                    {
+                        "data": "CommentId",
+                        "visible": false,
+                    },
+                    {
+                        "data": "ModifiedOn",
+                        "visible": false,
+                    },
+                    {
+                        "data": "RowNumber",
+                        "orderable": false,
+                        "title": '#',
+                        "width": 5 + '%',
+                        "className": "text-center vertical-middle",
+                    },
+                    {
+                        "data": "BlogTitle",
+                        "orderable": true,
+                        "title": 'Blog',
+                        "width": 15 + '%',
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "UserName",
+                        "orderable": true,
+                        "title": 'User',
+                        "width": 15 + '%',
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) { return data; }
+                    },
+                    {
+                        "data": "Comment",
+                        "orderable": true,
+                        "title": 'Comment',
+                        "width": 70 + '%',
+                        "responsivePriority": 1,
+                        "className": "vertical-middle",
+                        "render": function (data, type, row, meta) {
+                           if (data != null && data != '' && data.length > 75) {
+                               return '<span title="' + data+'">' + data.substring(0, 75) + '...</span>';
+                            }
+                            return data;
+                        }
+                    }
+                ];
+
+                FillDataTable(pageSize, gridStartsAt, columnsList, 'TblList', 'Admin_GetCommentList', 'comment');
+            }
+
+
+        function FillDataTable(pageSize, gridStartsAt, columnsList, tableName,
+            procedureName, pageName) {
+            $.blockUI({ message: '<div class="contentarea"><img src="../images/loading_Sts.gif" /><br></div>' });
+            $('.table-data-hold').html(' <table width="100%" cellpadding="0" cellspacing="0" border="0" id="' + tableName + '"\
+                   class= "table cell-border table-striped table-bordered dt-responsive nowrap" >\
+            </table >');
+
+            columnsList.push({
+                "data": null,
+                "orderable": false,
+                "title": 'Actions',
+                "className": "iconcolumn",
+                "width": '10px',
+                "render": function (data, type, row, meta) {
+                    return getDeleteString(data) + ' ' + getReplyString(data);
+                }
+            });
+
+            var table = $('#' + tableName).DataTable({
+                'destroy': true,
+                "processing": false,
+                "serverSide": true,
+                "bFilter": false,
+                "bLengthChange": false,
+                "responsive": true,
+                /* "displayStart": 11,*/
+                "paging": true,
+                "pageLength": pageSize,
+                "order": [[1, "asc"]],
+                "bInfo": false,
+                "ajax": {
+                    url: "/Comment/GetTableList",
+                    type: 'POST',
+                    "data": function (d) {
+                        d.ProcedureName = procedureName;
+                        d.pageName = pageName;
+                        d.BlogId = @Model;
+                    },
+                    complete: function (data) {
+                        $.unblockUI();
+                        console.log('Pagination Web view server side completed...' + new Date());
+                    },
+                    error: function (e) {
+                        $.unblockUI();
+                        console.log('Pagination  Web view server side Error...' + new Date());
+                        console.log(e);
+                    }
+                },
+                "columns": columnsList
+            });
+        }
+
+        function openReplyPopup(id) {
+            alert(id);
+            $('#hdnCommentId').val(id);
+            $('#showmodal').modal('show');
+        }
+
+
+        function SaveReplyComment(e) {
+
+             $.ajax({
+                type: "POST",
+                cache: !0,
+                url: "@Url.Action("SaveReplyComment", "Comment")",
+                 data: { "comment": $('#txtReplyComment').val(), "commentId": $('#hdnCommentId').val()  },
+                success: function (response) {
+                   // alert(response);
+                    if (response != null && response != undefined && response != '0') {
+                        toastr.success('success', 'Comment saved successfully...');
+                        $('#showmodal').modal('hide');
+                        $('#txtReplyComment').val('');
+                        $('#hdnCommentId').val('');
+                    }
+                },
+                failure: function (response) {
+                   // alert(response.responseText);
+                },
+                error: function (response) {
+                   // alert(response.responseText);
+                }
+            });
+             @*$.ajax({
+                    url: '@Url.Action("SaveReplyComment", "Comment")',
+                    type: "POST",
+                 data: { "comment": $('#txtComment').val(), "commentId": $('#hdnCommentId').val() },
+                    dataType: "json",
+                    success: function (status) {
+                        if (status == 1) {
+                            toastr.success('success', 'Comment replied successfully...');
+                        }
+                        else {
+                            toastr.warning('warning', 'Failed...');
+                        }
+                 },
+                 error: function (error) {
+                     console.log(error);
+                 }
+                });*@
+        }
+    </script>
+}
+
