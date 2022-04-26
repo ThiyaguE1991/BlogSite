@@ -69,8 +69,8 @@
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
-    <Reference Include="System.Web.Cors, Version=5.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Cors.5.0.0\lib\net45\System.Web.Cors.dll</HintPath>
+    <Reference Include="System.Web.Cors, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Cors.5.2.8\lib\net45\System.Web.Cors.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
@@ -80,6 +80,9 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Web.Http, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.5.2.8\lib\net45\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.Cors, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Cors.5.2.8\lib\net45\System.Web.Http.Cors.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Http.WebHost, Version=5.2.8.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.5.2.8\lib\net45\System.Web.Http.WebHost.dll</HintPath>
@@ -200,6 +203,10 @@
     <Compile Include="Migrations\202204200005487_mediaFileIdLengthChange.cs" />
     <Compile Include="Migrations\202204200005487_mediaFileIdLengthChange.Designer.cs">
       <DependentUpon>202204200005487_mediaFileIdLengthChange.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202204241230139_deletedby.cs" />
+    <Compile Include="Migrations\202204241230139_deletedby.Designer.cs">
+      <DependentUpon>202204241230139_deletedby.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\BloggerModel.cs" />
@@ -2301,6 +2308,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202204200005487_mediaFileIdLengthChange.resx">
       <DependentUpon>202204200005487_mediaFileIdLengthChange.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202204241230139_deletedby.resx">
+      <DependentUpon>202204241230139_deletedby.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

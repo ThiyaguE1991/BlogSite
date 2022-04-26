@@ -79,3 +79,6 @@ C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\obj\Release\BloggerPortal.
 C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\obj\Release\BloggerPortal.dll
 C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\obj\Release\BloggerPortal.pdb
 C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\obj\Release\BloggerPortal.Migrations.mediaFileIdLengthChange.resources
+C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\bin\System.Web.Http.Cors.dll
+C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\bin\System.Web.Http.Cors.xml
+C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\obj\Release\BloggerPortal.Migrations.deletedby.resources

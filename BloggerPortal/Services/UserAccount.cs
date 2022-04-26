@@ -48,6 +48,61 @@ namespace BloggerPortal.Services
             return obj.UserId;
         }
 
+
+
+        public static int SaveUserAccount(int userId, string userName, string emailId, string password,
+            byte roleId, string mobileNo, string address, string city)
+        {
+            TBL_User obj_val = new TBL_User();
+            try
+            {
+
+                if (userId == 0)
+                {
+                    obj_val.CreatedOn = DateTime.Now;
+                    obj_val.IsActive = true;
+                    obj_val.UserName = userName;
+                    obj_val.EmailId = emailId;
+                    obj_val.Password = password;
+                    obj_val.RoleId = roleId;
+                    obj_val.MobileNo = mobileNo;
+                    obj_val.Address = address;
+                    obj_val.City = city;
+
+                    using (var dbEntity = new BloggerModel())
+                    {
+                        dbEntity.TBL_User.Add(obj_val);
+                        dbEntity.SaveChanges();
+                    }
+                }
+                else
+                {
+                    using (var db = new BloggerModel())
+                    {
+                        var objEdit = db.TBL_User.Where(d => d.UserId == userId).SingleOrDefault();
+                        objEdit.UserName = userName;
+                        objEdit.EmailId = emailId;
+                        objEdit.Password = password;
+                        objEdit.RoleId = roleId;
+                        objEdit.MobileNo = mobileNo;
+                        objEdit.Address = address;
+                        objEdit.City = city;
+                        db.SaveChanges();
+                    }
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.WriteLog(ex.ToString(), "Save User");
+                return 0;
+            }
+            return obj_val.UserId;
+        }
+
+
+
         public static TBL_User ValidateLoginCredentials(LoginVM model)
         {
             try
@@ -242,9 +297,9 @@ namespace BloggerPortal.Services
                 {
                     var list = (from n in dbEntity.TBL_User
                                 join m in dbEntity.TBL_Role on n.RoleId equals m.RoleId
-                                where n.IsActive == true
+                                where n.IsActive == true && n.IsDeleted != true
                                 select new UserListVM
-                                {                                    
+                                {
                                     UserId = n.UserId,
                                     RoleId = n.RoleId,
                                     RoleName = m.RoleName,
@@ -263,6 +318,27 @@ namespace BloggerPortal.Services
             {
             }
             return new List<UserListVM>();
+        }
+
+
+        public static bool RemoveUser(int removeUserId)
+        {
+            try
+            {
+                using (var dbEntity = new BloggerModel())
+                {
+                    var objEdit = dbEntity.TBL_User.Where(d => d.UserId == removeUserId).SingleOrDefault();
+                    objEdit.DeletedOn = DateTime.Now;
+                    //objEdit.DeletedBy = userId;
+                    objEdit.IsDeleted = true;
+                    dbEntity.SaveChanges();
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
         }
 
     }

@@ -224,10 +224,13 @@ namespace BloggerPortal.Services
                 using (var dbEntity = new BloggerModel())
                 {
                     var objEdit = dbEntity.TBL_Blog.Where(d => d.BlogId == blogId).SingleOrDefault();
-                    objEdit.DeletedOn = DateTime.Now;
-                    objEdit.DeletedBy = userId;
-                    objEdit.IsDeleted = true;
-                    dbEntity.SaveChanges();
+                    if (objEdit != null)
+                    {
+                        objEdit.DeletedOn = DateTime.Now;
+                        objEdit.DeletedBy = userId;
+                        objEdit.IsDeleted = true;
+                        dbEntity.SaveChanges();
+                    }
                 }
             }
             catch (Exception ex)
@@ -256,7 +259,7 @@ namespace BloggerPortal.Services
                                     CommentId = n.CommentId,
                                     CreatedOn = n.CreatedOn,
                                     IsActive = n.IsActive,
-                                    UserName = u.UserName                                    
+                                    UserName = u.UserName
                                 }).OrderByDescending(n => n.CreatedOn).ToList();
                     return list;
                 }

@@ -50,7 +50,7 @@ namespace BloggerPortal.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("api/blog/getAllComments")]
-        public IHttpActionResult GetAllCommentsForBlog(int blogId)
+        public IHttpActionResult GetAllCommentsForBlog([FromBody] CommentsListAPIVM json)
         {
             GetResponse res = new GetResponse();
             try
@@ -61,7 +61,7 @@ namespace BloggerPortal.Controllers
                 objResponse.ResponseCode = "1";
                 objResponse.ResponseMessage = "Success...";
 
-                var commentList = UserComments.GetUserComments(blogId);
+                var commentList = UserComments.GetUserComments(json.blogId);
                 objResponse.CommentList = commentList;
                 return Ok(objResponse);
 
@@ -77,7 +77,7 @@ namespace BloggerPortal.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("api/blog/saveComment")]
-        public IHttpActionResult SaveCommentForBlog(string comment, int blogId, int userId, int replyCommentId)
+        public IHttpActionResult SaveCommentForBlog([FromBody] SaveCommentAPIVM json)
         {
             GetResponse res = new GetResponse();
             try
@@ -88,8 +88,8 @@ namespace BloggerPortal.Controllers
                 objResponse.ResponseCode = "1";
                 objResponse.ResponseMessage = "Success...";
 
-                var commentId = UserComments.SaveUserComments(comment, blogId, userId, replyCommentId, false);
-                var commentList = UserComments.GetUserComments(blogId);
+                var commentId = UserComments.SaveUserComments(json.comment, json.blogId, json.userId, json.replyCommentId, false);
+                var commentList = UserComments.GetUserComments(json.blogId);
                 objResponse.CommentList = commentList;
                 return Ok(objResponse);
             }
@@ -109,7 +109,7 @@ namespace BloggerPortal.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("api/blog/getBlogForBlogger")]
-        public IHttpActionResult GetAllBlogForBlogger(int userId)
+        public IHttpActionResult GetAllBlogForBlogger([FromBody] AllBlogAPIVM json)
         {
             GetResponse res = new GetResponse();
             try
@@ -119,10 +119,8 @@ namespace BloggerPortal.Controllers
 
                 objResponse.ResponseCode = "1";
                 objResponse.ResponseMessage = "Success...";
+                objResponse.BlogList = BlogServices.GetBlogListForUser(json.userId);
 
-                objResponse.BlogList = BlogServices.GetBlogListForUser(userId);
-
-                //objResponse.blogList = blogList;
                 return Ok(objResponse);
 
             }
@@ -136,24 +134,16 @@ namespace BloggerPortal.Controllers
 
         [AllowAnonymous]
         [HttpPost]
-        [Route("api/blog/saveBlog")]
-        public IHttpActionResult SaveBlogDetails(
-            int blogId, int userId,
-            string description, byte mediaType,
-            int mediaFileId, string publishedDate,
-            string isVisible, string title)
+        [Route("api/blog/mediaFileUpload")]
+        public IHttpActionResult FileUpload()
         {
-            TBL_Blog json = new TBL_Blog();
             GetResponse res = new GetResponse();
             try
             {
+                
                 var httpRequest = HttpContext.Current.Request;
-                var exists = BlogServices.CheckBlogAlreadyExists(blogId, title);
-                if (exists)
-                    return Ok(res.GetResponseStatus("-1", "Blog already exists..."));
-
                 var filePath = HttpContext.Current.Server.MapPath("\\Content\\MediaFiles\\");
-
+                int mediaFileId = 0;
 
                 if (httpRequest != null && httpRequest.Files.Count > 0)
                 {
@@ -170,28 +160,56 @@ namespace BloggerPortal.Controllers
                         var savedFileName = mediaFileNameId.ToString() + "." + extension;
                         file.SaveAs(filePath + "//" + savedFileName);
 
-                        var resultItem = UploadServices.SaveMediaFile(userId, Path.GetExtension(file.FileName),
+                        var resultItem = UploadServices.SaveMediaFile(1, Path.GetExtension(file.FileName),
                                         Convert.ToString(file.ContentLength),
                                         0, 0, file.ContentType, mediaFileNameId.ToString());
                         mediaFileId = resultItem.Item2;
                     }
+                    dynamic objResponse = new ExpandoObject();
+                    objResponse.ResponseCode = "1";
+                    objResponse.ResponseMessage = "Success...";
+                    objResponse.MediaFileId = mediaFileId;
+                    return Ok(objResponse);
                 }
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.WriteLog(ex.ToString(), "Blog Media Upload");
+            }
+            return Ok(res.GetResponseStatus("0", "Blog Media not saved."));
 
-                json.UserId = userId;
-                json.BlogId = blogId;
-                json.Description = description;
-                json.Title = title;
-                json.MediaType = mediaType;
-                json.MediaFileId = mediaFileId;
-                json.IsVisible = isVisible == "true" ? true : false;
-                json.PublishedDate = Common.DateConversion.StringToNullableDateConversion(publishedDate, "dd/MM/yyyy") ?? DateTime.Now;
+        }
 
 
-                var result = BlogServices.SaveBlog(json);
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("api/blog/saveBlog")]
+        public IHttpActionResult SaveBlogDetails([FromBody] SaveBlogApiVM json)
+        {//
+            TBL_Blog obj = new TBL_Blog();
+            GetResponse res = new GetResponse();
+            try
+            {
+
+                var exists = BlogServices.CheckBlogAlreadyExists(json.blogId, json.title);
+                if (exists)
+                    return Ok(res.GetResponseStatus("-1", "Blog already exists..."));
+
+                obj.UserId = json.userId;
+                obj.BlogId = json.blogId;
+                obj.Description = json.description;
+                obj.Title = json.title;
+                obj.MediaType = json.mediaType;
+                obj.MediaFileId = json.mediaFileId;
+                obj.IsVisible = json.isVisible == "true" ? true : false;
+                obj.PublishedDate = Common.DateConversion.StringToNullableDateConversion(json.publishedDate, "dd/MM/yyyy") ?? DateTime.Now;
+
+
+                var result = BlogServices.SaveBlog(obj);
                 dynamic objResponse = new ExpandoObject();
                 objResponse.ResponseCode = "1";
                 objResponse.ResponseMessage = "Success...";
-                objResponse.BlogList = BlogServices.GetBlogListForUser(json.UserId);
+                objResponse.BlogList = BlogServices.GetBlogListForUser(obj.UserId);
                 return Ok(objResponse);
             }
             catch (Exception ex)
@@ -205,18 +223,18 @@ namespace BloggerPortal.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("api/blog/removeBlog")]
-        public IHttpActionResult RemoveBlog(int blogId, int userId)
+        public IHttpActionResult RemoveBlog([FromBody] RemoveBlogAPIVM json)
         {
             GetResponse res = new GetResponse();
             try
             {
-                var isDeleted = BlogServices.RemoveBlog(blogId, userId);
+                var isDeleted = BlogServices.RemoveBlog(json.blogId, json.userId);
                 dynamic objResponse = new ExpandoObject();
                 if (isDeleted)
                 {
                     objResponse.ResponseCode = "1";
                     objResponse.ResponseMessage = "Success...";
-                    objResponse.BlogList = BlogServices.GetBlogListForUser(userId);
+                    objResponse.BlogList = BlogServices.GetBlogListForUser(json.userId);
                     return Ok(objResponse);
                 }
             }
@@ -232,7 +250,7 @@ namespace BloggerPortal.Controllers
         [AllowAnonymous]
         [HttpPost]
         [Route("api/blog/getCommentsForBlog")]
-        public IHttpActionResult GetCommentsForBlog(int blogId)
+        public IHttpActionResult GetCommentsForBlog([FromBody] CommentBlogAPIVM json)
         {
             GetResponse res = new GetResponse();
             try
@@ -243,7 +261,7 @@ namespace BloggerPortal.Controllers
                 objResponse.ResponseCode = "1";
                 objResponse.ResponseMessage = "Success...";
 
-                objResponse.CommentList = BlogServices.GetCommentListForBlog(blogId);
+                objResponse.CommentList = BlogServices.GetCommentListForBlog(json.blogId);
                 //objResponse.blogList = blogList;
                 return Ok(objResponse);
 
@@ -284,31 +302,100 @@ namespace BloggerPortal.Controllers
         #endregion
 
 
-        // GET api/<controller>
-        public IEnumerable<string> Get()
+        #region User Registration
+
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("api/blog/login")]
+        public IHttpActionResult Login([FromBody] LoginAPIVM json)
         {
-            return new string[] { "value1", "value2" };
+            GetResponse res = new GetResponse();
+            try
+            {
+                dynamic objResponse = new ExpandoObject();
+                dynamic user = new ExpandoObject();
+                objResponse.ResponseCode = "1";
+                objResponse.ResponseMessage = "Success...";
+                var userDetails = UserAccount.ValidateAPILoginCredentials(json.emailId, json.password);
+                if (null == userDetails)
+                {
+                    return Ok(res.GetResponseStatus("0", "Incorrect Username/Password"));
+                }
+                objResponse.UserDetails = userDetails;
+                return Ok(objResponse);
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.WriteLog(ex.ToString(), "AccountController => Login");
+            }
+            return Ok(res.GetResponseStatus("0", "Incorrect Username/Password"));
         }
 
-        // GET api/<controller>/5
-        public string Get(int id)
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("api/user/createuser")]
+        public IHttpActionResult UserRegistration([FromBody] UserRegistrationAPIVM json)
         {
-            return "value";
+            GetResponse res = new GetResponse();
+            try
+            {
+                dynamic objResponse = new ExpandoObject();
+                var exists = UserAccount.CheckUserAlreadyExists(json.userId, json.emailId, json.userName);
+                if (exists)
+                {
+                    objResponse.ResponseCode = "-1";
+                    objResponse.ResponseMessage = "User email already exists...";
+                    return Ok(objResponse);
+                }
+
+                var isSaved = UserAccount.SaveUserAccount(json.userId, json.userName, json.emailId,
+                    json.password, json.roleId, json.mobileNo, json.address, json.city);
+
+                if (isSaved != 0)
+                {
+                    objResponse.ResponseCode = "1";
+                    objResponse.ResponseMessage = "Success...";
+                    // objResponse.UserList = UserAccount.GetAllUserList();
+                    return Ok(objResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.WriteLog(ex.ToString(), "SaveUserAccount");
+            }
+            return Ok(res.GetResponseStatus("0", "User not saved..."));
         }
 
-        // POST api/<controller>
-        public void Post([FromBody] string value)
+
+        [AllowAnonymous]
+        [HttpPost]
+        [Route("api/user/removeUser")]
+        public IHttpActionResult RemoveUser([FromBody] AllBlogAPIVM json)
         {
+            GetResponse res = new GetResponse();
+            try
+            {
+                var isDeleted = UserAccount.RemoveUser(json.userId);
+                dynamic objResponse = new ExpandoObject();
+                if (isDeleted)
+                {
+                    objResponse.ResponseCode = "1";
+                    objResponse.ResponseMessage = "Success...";
+                    objResponse.UserList = UserAccount.GetAllUserList();
+                    return Ok(objResponse);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorLog.WriteLog(ex.ToString(), "RemoveUserDetails");
+            }
+            return Ok(res.GetResponseStatus("0", "User not deleted."));
         }
 
-        // PUT api/<controller>/5
-        public void Put(int id, [FromBody] string value)
-        {
-        }
+        #endregion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
 
-        // DELETE api/<controller>/5
-        public void Delete(int id)
-        {
-        }
+
     }
 }

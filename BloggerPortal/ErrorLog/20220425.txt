@@ -1,0 +1,11 @@
+25-04-2022 14:01:42 ---- SaveBlogDetails ------ System.FormatException: String was not recognized as a valid DateTime.
+   at BloggerPortal.Common.DateConversion.StringToNullableDateConversion(String date, String format) in C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\Common\DateConversion.cs:line 59
+   at BloggerPortal.Controllers.BlogsViewController.SaveBlogDetails(Int32 blogId, Int32 userId, String description, Byte mediaType, Int32 mediaFileId, String publishedDate, String isVisible, String title) in C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\Controllers\BlogsViewController.cs:line 185
+25-04-2022 17:16:59 ---- Upload DP - SaveMediaFile ------ System.Data.Entity.Validation.DbEntityValidationException: Validation failed for one or more entities. See 'EntityValidationErrors' property for more details.
+   at System.Data.Entity.Internal.InternalContext.SaveChanges()
+   at System.Data.Entity.Internal.LazyInternalContext.SaveChanges()
+   at System.Data.Entity.DbContext.SaveChanges()
+   at BloggerPortal.Services.UploadServices.SaveMediaFile(Int32 userId, String extension, String fileSize, Int32 width, Int32 height, String mimeType, String mode, String mediaFileNameId) in C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\Services\UploadService.cs:line 65
+25-04-2022 17:17:01 ---- SaveBlogDetails ------ System.NullReferenceException: Object reference not set to an instance of an object.
+   at BloggerPortal.Services.UploadServices.SaveMediaFile(Int32 userId, String extension, String fileSize, Int32 width, Int32 height, String mimeType, String mediaFileNameId) in C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\Services\UploadService.cs:line 26
+   at BloggerPortal.Controllers.BlogsViewController.SaveBlogDetails(Int32 blogId, Int32 userId, String description, Byte mediaType, Int32 mediaFileId, String publishedDate, String isVisible, String title) in C:\Users\kethi\source\repos\BloggerSite\BloggerPortal\Controllers\BlogsViewController.cs:line 171
