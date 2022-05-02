@@ -104,7 +104,7 @@ namespace BloggerPortal.Controllers
 
 
 
-        #region Portal Part
+          #region Portal Part
 
         [AllowAnonymous]
         [HttpPost]
@@ -202,7 +202,8 @@ namespace BloggerPortal.Controllers
                 obj.MediaType = json.mediaType;
                 obj.MediaFileId = json.mediaFileId;
                 obj.IsVisible = json.isVisible == "true" ? true : false;
-                obj.PublishedDate = Common.DateConversion.StringToNullableDateConversion(json.publishedDate, "dd/MM/yyyy") ?? DateTime.Now;
+                obj.PublishedDate = DateTime.Now;
+               // obj.PublishedDate = Common.DateConversion.StringToNullableDateConversion(json.publishedDate, "dd/MM/yyyy") ?? DateTime.Now;
 
 
                 var result = BlogServices.SaveBlog(obj);

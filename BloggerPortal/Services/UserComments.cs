@@ -54,7 +54,7 @@ namespace BloggerPortal.Services
                 using (var dbEntity = new BloggerModel())
                 {
                     lstUserComments = (from n in dbEntity.TBL_Comment.Where(w => w.BlogId == blogId &&
-                                       w.IsDeleted == false && w.IsActive == true).ToList()
+                                       w.IsDeleted == false && w.IsActive == true && w.IsReply == false).ToList()
                                        join m in dbEntity.TBL_User on n.CreatedBy equals m.UserId
                                        select new CommentsListVM
                                        {
